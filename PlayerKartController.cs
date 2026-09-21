@@ -1,6 +1,7 @@
 ﻿using GONet;
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Collider))]
@@ -27,6 +28,7 @@ public class PlayerKartController : MonoBehaviour
     public float boostDuration = 3f;
 
     [Header("Camera Settings")]
+    private bool firstPerson = false;
     public Transform playerCamera;
 
     // Third-person camera
@@ -71,6 +73,7 @@ public class PlayerKartController : MonoBehaviour
 
     private float moveInput;
     private float turnInput;
+    private Vector3 camDefaultLocalPos;
 
     private bool isBoosting = false;
     private bool isShaking = false;
@@ -81,6 +84,8 @@ public class PlayerKartController : MonoBehaviour
     private float retainedSpeedDirection = 1f;
 
     private float reverseEngageSpeed = 0.5f;
+
+    private RawImage HelmetOverlay;
 
 
     void Awake()
@@ -123,6 +128,9 @@ public class PlayerKartController : MonoBehaviour
                 handlingFactor = 1.3f;
                 break;
         }
+
+        if (playerCamera != null)
+            camDefaultLocalPos = playerCamera.localPosition;
     }
 
 
@@ -131,7 +139,7 @@ public class PlayerKartController : MonoBehaviour
         gonetParticipant == null ||
         gonetParticipant.IsLocallyControlled;
 
-
+   
     void Update()
     {
         if (!IsLocallyControlled)
@@ -139,6 +147,18 @@ public class PlayerKartController : MonoBehaviour
 
         ApplyInput();
         UpdateEngineSound();
+
+        if (HelmetOverlay == null)
+            findHelmet();
+
+        if (InputManager.SwitchCamAction != null && InputManager.SwitchCamAction.WasCompletedThisFrame())
+        {
+            firstPerson = !firstPerson;
+
+            if (HelmetOverlay != null)
+                HelmetOverlay.enabled = firstPerson;
+        }
+        
     }
 
 
@@ -524,12 +544,6 @@ public class PlayerKartController : MonoBehaviour
         if (playerCamera == null)
             return;
 
-        // Position behind and above kart.
-        Vector3 targetPosition =
-            transform.position
-            - transform.forward * cameraDistance
-            + Vector3.up * cameraHeight;
-
         // Camera bob.
         float speedVal =
             rb.velocity.magnitude;
@@ -542,6 +556,25 @@ public class PlayerKartController : MonoBehaviour
             Mathf.Clamp01(
                 speedVal / speed
             );
+
+        if (firstPerson)
+        {
+            float driftTilt = InputManager.DriftAction.IsPressed() ? 1.5f : 1f;
+            float sideTilt = -turnInput * tiltAmount * driftTilt;
+            //float speedValTemp = rb.velocity.magnitude;
+            //float bobOffsetTemp = Mathf.Sin(Time.time * bobSpeed) * bobAmount * Mathf.Clamp01(speedValTemp / speed);
+
+            playerCamera.localPosition = camDefaultLocalPos + new Vector3(0f, bobOffset, 0f);
+            playerCamera.localRotation = Quaternion.Slerp(playerCamera.localRotation, Quaternion.Euler(0f, 0f, sideTilt), Time.deltaTime * tiltSpeed);
+
+            return;
+        }
+
+        // Position behind and above kart.
+        Vector3 targetPosition =
+            transform.position
+            - transform.forward * cameraDistance
+            + Vector3.up * cameraHeight;
 
         targetPosition +=
             Vector3.up * bobOffset;
@@ -729,5 +762,17 @@ public class PlayerKartController : MonoBehaviour
             Vector3.zero;
 
         isShaking = false;
+    }
+
+    private void findHelmet()
+    {
+        if (HelmetOverlay != null)
+            return;
+
+        GameObject helmet = GameObject.FindGameObjectWithTag("HelmetOverlay");
+
+        HelmetOverlay = helmet.GetComponent<RawImage>();
+
+        HelmetOverlay.enabled = firstPerson;
     }
 }
