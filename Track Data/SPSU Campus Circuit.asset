@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a296c13deea47a41bcc551984d24f97, type: 3}
+  m_Name: SPSU Campus Circuit
+  m_EditorClassIdentifier: 
+  trackName: SPSU CAMPUS CIRCUIT
+  subtitle: SOUTHERN POLYTECHNIC STATE UNIVERSITY // 1991
+  description: This map is based on the SPSU campus in 1991, when the last bathtub
+    races were held. It's a sunny spring day and turnout is high. Can you successfully
+    navigate the notoriously difficult winding curves of this historical campus?
+  thumbnail: {fileID: 2800000, guid: 4825a9a6729a4eb4a8a4958286f35fcf, type: 3}
+  mapImage: {fileID: 2800000, guid: 4578dd9985933e443b169d632084fd93, type: 3}
+  sceneName: Racetrack
